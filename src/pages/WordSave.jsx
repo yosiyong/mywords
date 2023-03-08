@@ -39,6 +39,7 @@ export default function WordSave() {
       }));
     }
   }
+
   async function onSubmit(e) {
     inputRef.current.focus();
     e.preventDefault();
@@ -113,6 +114,9 @@ export default function WordSave() {
         description: formDataCopy.description,
         update_user:auth.currentUser.uid
       });
+
+      //入力クリア
+      setFormData({ word: "", description: "" });
         
       setLoading(false);
       toast.success("更新しました。");
@@ -143,7 +147,10 @@ export default function WordSave() {
       setDoc(collectionPath, subData);
 
       // addDoc(collection(wordsRef, document.id, 'history'), subData),
-     
+
+      //入力クリア
+      setFormData({ word: "", description: "" });
+
       setLoading(false);
       toast.success("登録しました。");
     }
@@ -173,7 +180,7 @@ return (
         placeholder="説明" inputMode="kana" required 
         className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600" />
 
-      <button type="submit" onClick={()=>inputRef.current.focus()} className="mb-6 w-full px-7 py-3 bg-blue-600 text-white font-medium text-sm uppercase rounded shadow-md hover:bg-blue-700 focus:shadow-lg active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
+      <button type="submit" onClick={()=>inputRef.current.focus()} className="mt-6 mb-6 w-full px-7 py-3 bg-blue-600 text-white font-medium text-sm uppercase rounded shadow-md hover:bg-blue-700 focus:shadow-lg active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
         登録</button>
     </form>
   </main>
