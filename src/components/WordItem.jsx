@@ -27,22 +27,22 @@ export default function ListingItem({ id, listing, history, onCorrect, onInCorre
 
   return (
     <ReactCardFlip isFlipped={isFlipped} flipDirection="vertical">
-      
-      {/* 表：単語 */}
-      <div onClick={flipCard} className="relative bg-white flex flex-col justify-between items-center shadow-md hover:shadow-xl rounded-md overflow-hidden transition-shadow duration-150 m-[10px]">
-        <div className="flex flex-col items-center pb-10 mt-3">
-          <h5 className="text-xl font-medium text-gray-900 dark:text-white">
-            {listing.word}
-          </h5>
-        </div>
-      </div>
+      <li onClick={flipCard} className="relative bg-white flex flex-col justify-between items-center shadow-md hover:shadow-xl rounded-md overflow-hidden transition-shadow duration-150 m-[10px]">
+        {/* 表：単語 */}
 
+          <div className="w-full h-full p-[10px] flex flex-col items-center pb-10 mt-3">
+            <h5 className="text-xl font-medium text-gray-900 dark:text-white">
+              {listing.word}
+            </h5>
+          </div>
+
+      </li>
       {/* 裏：説明 */}
-      <div onClick={flipCard} className="relative bg-white flex flex-col justify-between items-center shadow-md hover:shadow-xl rounded-md overflow-hidden transition-shadow duration-150 m-[10px]">
-        <div className="flex flex-col items-center pb-10 mt-3">
+      <li onClick={flipCard} className="relative bg-white flex flex-col justify-between items-center shadow-md hover:shadow-xl rounded-md overflow-hidden transition-shadow duration-150 m-[10px]">
+        <div className="w-full h-full p-[10px] flex flex-col items-center pb-10 mt-3">
           <span className="text-sm text-gray-500 dark:text-gray-400"><MultiLineBody body={listing.description} /></span>
         </div>
-      
+     
         {onCorrect && (
           <ImHappy
             className="absolute bottom-2 left-2 h-4 cursor-pointer "
@@ -56,7 +56,8 @@ export default function ListingItem({ id, listing, history, onCorrect, onInCorre
             onClick={() => onInCorrect(listing.id)}
           />
         )}
-      </div>
+        
+      </li>
     </ReactCardFlip>
   );
 }
