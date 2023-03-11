@@ -184,9 +184,12 @@ export default function Profile() {
       <div className="max-w-6xl px-3 mt-6 mx-auto">
         {!loading && listings.length > 0 && (
           <>
-            <h2 className="text-2xl text-center font-semibold mb-6">
-              My Words
-            </h2>
+            <div className="flex justify-center items-center mb-6">
+              <h2 className="text-2xl text-center font-semibold">
+                My Words
+              </h2>
+              <span className="ml-3 mt-3 text-sm font-semibold align-middle text-gray-400 border-b-[3px] border-b-transparent">{listings.length}単語</span>
+            </div>
             <Swiper
               spaceBetween={50}
               slidesPerView={1}
