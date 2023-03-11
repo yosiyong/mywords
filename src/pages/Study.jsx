@@ -155,28 +155,29 @@ export default function Profile() {
       last_studied_at: serverTimestamp()
     });
 
-    // let now = new Date();
-    // listings.map((list, idx) => {
-    //   if (list.id == listingID) {
-    //     list.history.correct = false;
-    //     list.history.correct_count = 0;
-    //     list.history.correct_rate = correct_rate;
-    //     list.history.study_count = study_count;
-    //     list.history.last_studied_at = serverTimestamp();
-    //     list.last_studied_at = now;
-    //   }
-    // });
-    // console.log(listings);
-    // listings.sort((a, b) => {
-    //   return (a.last_studied_at < b.last_studied_at) ? -1 : 1;  //オブジェクトの昇順ソート
-    // });
+    console.log("listings:",listings);
+    let now = new Date();
+    const listing2 =listings.map((list, idx) => {
+      if (list.id == listingID) {
+        list.history.correct = false;
+        list.history.correct_count = 0;
+        list.history.correct_rate = correct_rate;
+        list.history.study_count = study_count;
+        list.history.last_studied_at = serverTimestamp();
+        list.last_studied_at = now;
+      }
+      return list;
+    });
 
-    // console.log(listings);
-    //setListings(listings);
+    const listing3 = listing2.sort((a, b) => {
+      return (a.last_studied_at < b.last_studied_at) ? -1 : 1;  //オブジェクトの昇順ソート
+    });
 
-    //並び替えのために再取得
-    fetchUserListings();
+    console.log("listing3:",listing3);
+    setListings(listing3);
 
+    // //並び替えのために再取得
+    // fetchUserListings();
   }
   return (
     <>
