@@ -32,7 +32,7 @@ export default function Header() {
   }
 
   function onLogout() {
-    menuFunction();
+    openMenu && menuFunction();
     auth.signOut();
     navigate("/sign-in");
   }
@@ -48,7 +48,7 @@ export default function Header() {
           <img src="/logo-no-background.svg" 
           alt="logo" 
           className="h-10 cursor-pointer" 
-          onClick={()=>navigate("/")}/>
+          onClick={()=>{navigate("/"); openMenu && menuFunction;}}/>
         </div>
 
         {/* mobile場合のメニュー */}
