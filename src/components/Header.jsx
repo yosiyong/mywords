@@ -50,30 +50,34 @@ export default function Header() {
           className="h-10 cursor-pointer" 
           onClick={()=>navigate("/")}/>
         </div>
+
+        {/* mobile場合のメニュー */}
         {openMenu ? (
-        <div className='flex flex-row absolute z-10 top-0 right-0  min-h-fit min-w-full'>
-          <div className='basis-1/2'></div>
+          <div className='flex flex-row absolute z-10 top-0 right-0  min-h-fit min-w-full'>
+            <div className='basis-1/2'></div>
 
-          <div className='basis-1/2 bg-white'>
-            <ul className=' text-center border-l-2 '>
-              <li className='p-2 border-b-2'>
-                <button onClick={menuFunction} className='font-bold'>
-                  閉じる
-                </button>
-              </li>
-              <li className="p-2 border-b-2" onClick={() => {pageState == "学習" ? navigate("/study"):navigate("/sign-in"); menuFunction();}}>{pageState}</li>
+            <div className='basis-1/2 bg-white'>
+              <ul className=' text-center border-l-2 '>
+                <li className='p-2 border-b-2'>
+                  <button onClick={menuFunction} className='font-bold'>
+                    閉じる
+                  </button>
+                </li>
+                <li className="p-2 border-b-2" onClick={() => {pageState == "学習" ? navigate("/study"):navigate("/sign-in"); menuFunction();}}>{pageState}</li>
 
-                {pageState == "学習" && (
-                <li className="p-2 border-b-2" onClick={() => {navigate("/word-save"); menuFunction();}}>単語登録</li>
-                )}
+                  {pageState == "学習" && (
+                  <li className="p-2 border-b-2" onClick={() => {navigate("/word-save"); menuFunction();}}>単語登録</li>
+                  )}
 
-                {pageState == "学習" && (
-                <p onClick={onLogout} className="p-2 border-b-2">ログアウト</p>
-                )}
-            </ul>
+                  {pageState == "学習" && (
+                  <p onClick={onLogout} className="p-2 border-b-2">ログアウト</p>
+                  )}
+              </ul>
+            </div>
           </div>
-        </div>
-      ) : undefined}
+        ) : undefined}
+
+        {/* pcの場合のメニュー */}
         <div>
           <ul className="md:flex hidden space-x-10">
             <li className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${(pathMatchRoute("/sign-in") || pathMatchRoute("/study")) && "text-black border-b-red-500"}`} 
@@ -93,6 +97,8 @@ export default function Header() {
             )}
           </ul>
         </div>
+
+        {/* mobile場合のメニューボタン */}
         <button onClick={menuFunction} className='flex md:hidden'>
           <FcMenu />
         </button>
