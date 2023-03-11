@@ -13,6 +13,10 @@ import { useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase";
 import WordItem from "../components/WordItem";
 import moment from "moment";
+import { Swiper, SwiperSlide } from 'swiper/react';
+
+// Import Swiper styles
+import 'swiper/css';
 
 export default function Profile() {
   //const auth = getAuth();
@@ -142,6 +146,7 @@ export default function Profile() {
     const correct_count = lists[0].history.correct_count - 1;
     const study_count = lists[0].history.study_count + 1;
     const correct_rate = (correct_count/study_count)*100;
+    
     await updateDoc(updateRef, {
       correct: false,
       correct_count: 0,
@@ -149,6 +154,25 @@ export default function Profile() {
       study_count: study_count,
       last_studied_at: serverTimestamp()
     });
+
+    // let now = new Date();
+    // listings.map((list, idx) => {
+    //   if (list.id == listingID) {
+    //     list.history.correct = false;
+    //     list.history.correct_count = 0;
+    //     list.history.correct_rate = correct_rate;
+    //     list.history.study_count = study_count;
+    //     list.history.last_studied_at = serverTimestamp();
+    //     list.last_studied_at = now;
+    //   }
+    // });
+    // console.log(listings);
+    // listings.sort((a, b) => {
+    //   return (a.last_studied_at < b.last_studied_at) ? -1 : 1;  //オブジェクトの昇順ソート
+    // });
+
+    // console.log(listings);
+    //setListings(listings);
 
     //並び替えのために再取得
     fetchUserListings();
@@ -162,20 +186,27 @@ export default function Profile() {
             <h2 className="text-2xl text-center font-semibold mb-6">
               My Words
             </h2>
-            <ul className="sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            <Swiper
+              spaceBetween={50}
+              slidesPerView={1}
+              onSlideChange={() => console.log('slide change')}
+              onSwiper={(swiper) => console.log(swiper)}
+            >
               {listings.map((listing) => (
-                <WordItem
-                  key={listing.id}
-                  id={listing.id}
-                  listing={listing.word}
-                  history={listing.history}
-                  onCorrect={() => onIknow(listing.id)}
-                  onInCorrect={() => onIdontknow(listing.id)}
-                />
+                <SwiperSlide key={listing.id}>
+                  <WordItem
+                    id={listing.id}
+                    listing={listing.word}
+                    history={listing.history}
+                    onCorrect={() => onIknow(listing.id)}
+                    onInCorrect={() => onIdontknow(listing.id)}
+                  />
+                </SwiperSlide>
               ))}
-            </ul>
+            </Swiper>
           </>
-        )}
+          )}
+      
       </div>
     </>
   );
