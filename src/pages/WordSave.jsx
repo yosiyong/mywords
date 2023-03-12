@@ -170,15 +170,15 @@ return (
       {/* 単語 */}
       <p className="text-lg mt-6 font-semibold">単語</p>
       <input type="text" id="word" ref={inputRef} value={word} onChange={onChange} onFocus={handleFocus}
-      placeholder="単語" inputMode="latin" maxLength="32" minLength="2" required 
+      placeholder="単語" inputMode="latin" maxLength="100" minLength="1" required 
       className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600" />
 
       
       {/* 説明 */}
       <p className="text-lg mt-6 font-semibold">説明</p>
       <textarea type="text" id="description" value={description} onChange={onChange} onFocus={handleFocus}
-        placeholder="説明" inputMode="kana" required 
-        className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600" />
+        placeholder="説明" inputMode="kana" required maxLength="500" minLength="1" 
+        className="w-full px-4 py-2 h-[200px] text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600" />
 
       <button type="submit" onClick={()=>inputRef.current.focus()} className="mt-6 mb-6 w-full px-7 py-3 bg-blue-600 text-white font-medium text-sm uppercase rounded shadow-md hover:bg-blue-700 focus:shadow-lg active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
         登録</button>
