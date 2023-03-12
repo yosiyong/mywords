@@ -6,19 +6,20 @@ import {
   getDocs,
   query,
   updateDoc,
+  deleteDoc,
   where,
 } from "firebase/firestore";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase";
 import WordItem from "../components/WordItem";
 import moment from "moment";
+import Spinner from "../components/Spinner";
 import { Swiper, SwiperSlide } from 'swiper/react';
 
 // Import Swiper styles
 import 'swiper/css';
 
-export default function Profile() {
+export default function Study() {
   //const auth = getAuth();
   //const navigate = useNavigate();
   const [listings, setListings] = useState(null);
@@ -26,6 +27,8 @@ export default function Profile() {
 
   //単語データ取得
   async function fetchUserListings() {
+
+    setLoading(true);
       
     //ログインユーザーの勉強履歴データhistory(sub collection)を取得
     const historyQuery = query(collectionGroup(db, 'history'), where('userRef', '==', auth.currentUser.uid));
@@ -72,16 +75,25 @@ export default function Profile() {
 
     let listings = [];
     wordsSnap.forEach((d) => {
-      historyPromises.forEach((h) => {
-        if (d.id == h.data.word_id) {
-          return listings.push({
-            id: d.id,
-            word: d.data(),
-            history: h.data,
-            last_studied_at: h.data.last_studied_at.toDate()
-          });
-        }
-      });
+
+      if (d.data() == null) {
+        console.log('null data word id:', d.id);
+        // deleteDoc(doc(db, "words", d.id,"history", auth.currentUser.uid));
+        // deleteDoc(doc(db, "words", d.id));
+      }
+
+      if (d.data() != null) {
+        historyPromises.forEach((h) => {
+          if (d.id == h.data.word_id) {
+            return listings.push({
+              id: d.id,
+              word: d.data(),
+              history: h.data,
+              last_studied_at: h.data.last_studied_at.toDate()
+            });
+          }
+        });
+      }
     });
 
     listings.sort(function(a, b) {
@@ -179,6 +191,11 @@ export default function Profile() {
     // //並び替えのために再取得
     // fetchUserListings();
   }
+
+  if (loading) {
+    return <Spinner />;
+  }
+
   return (
     <>
       <div className="max-w-6xl px-3 mt-6 mx-auto">
