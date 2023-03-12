@@ -69,6 +69,10 @@ export default function Header() {
                   <li className="p-2 border-b-2" onClick={() => {navigate("/word-save"); menuFunction();}}>単語登録</li>
                   )}
 
+                {pageState == "学習" && (
+                  <li className="p-2 border-b-2" onClick={() => {navigate("/words-list"); menuFunction();}}>単語一覧</li>
+                  )}
+
                   {pageState == "学習" && (
                   <p onClick={onLogout} className="p-2 border-b-2">ログアウト</p>
                   )}
@@ -86,6 +90,11 @@ export default function Header() {
             {pageState == "学習" && (
             <li className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${pathMatchRoute("/word-save") && "text-black border-b-red-500"}`} 
             onClick={() => navigate("/word-save")}>単語登録</li>
+            )}
+
+            {pageState == "学習" && (
+            <li className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${pathMatchRoute("/words-list") && "text-black border-b-red-500"}`} 
+            onClick={() => navigate("/words-list")}>単語一覧</li>
             )}
 
             {pageState == "学習" && (

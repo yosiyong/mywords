@@ -8,6 +8,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Header from "./components/Header";
 import WordSave from "./pages/WordSave";
 import Study from "./pages/Study";
+import WordsList from "./pages/WordsList";
+import WordEdit from "./pages/WordEdit";
 
 function App() {
   return (
@@ -27,7 +29,15 @@ function App() {
           <Route path="/word-save" element={<PrivateRoute />}>
             <Route path="/word-save" element={<WordSave/>}/>
           </Route>
-          
+
+          <Route path="word-edit" element={<PrivateRoute />}>
+            <Route path="/word-edit/:listingId" element={<WordEdit/>}/>
+          </Route>
+
+          <Route path="/words-list" element={<PrivateRoute />}>
+            <Route path="/words-list" element={<WordsList/>}/>
+          </Route>
+        
           <Route path="/sign-in" element={<SignIn/>}/>
           <Route path="/sign-up" element={<SignUp/>}/>
           <Route path="/forgot-password" element={<ForgotPassword/>}/>
