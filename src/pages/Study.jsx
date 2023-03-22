@@ -128,9 +128,16 @@ export default function Study() {
       
       //学習履歴更新
       const updateRef = doc(db, "words", listingID ,"history",auth.currentUser.uid);
+
       const correct_count = lists[0].history.correct_count + 1;
       const study_count = lists[0].history.study_count + 1;
-      const correct_rate = (correct_count/study_count)*100;
+      let correct_rate = 0
+      if (correct_count > 0) {
+        correct_rate = (correct_count/study_count)*100;
+        correct_rate = correct_rate.toFixed(0);
+        console.log("correct_rate:",correct_rate);
+      }
+
       await updateDoc(updateRef, {
         correct: true,
         correct_count: correct_count,
@@ -155,9 +162,20 @@ export default function Study() {
     
     //学習履歴更新
     const updateRef = doc(db, "words", listingID ,"history",auth.currentUser.uid);
-    const correct_count = lists[0].history.correct_count - 1;
+    
+    let correct_count = lists[0].history.correct_count;
+    if (correct_count > 0) {
+      correct_count = correct_count - 1;
+    }
+    
     const study_count = lists[0].history.study_count + 1;
-    const correct_rate = (correct_count/study_count)*100;
+
+    let correct_rate = 0
+    if (correct_count > 0) {
+      correct_rate = (correct_count/study_count)*100;
+      correct_rate = correct_rate.toFixed(0);
+      console.log("correct_rate:",correct_rate);
+    }
     
     await updateDoc(updateRef, {
       correct: false,
@@ -167,7 +185,7 @@ export default function Study() {
       last_studied_at: serverTimestamp()
     });
 
-    console.log("listings:",listings);
+    //console.log("listings:",listings);
     let now = new Date();
     const listing2 =listings.map((list, idx) => {
       if (list.id == listingID) {
@@ -185,7 +203,7 @@ export default function Study() {
       return (a.last_studied_at < b.last_studied_at) ? -1 : 1;  //オブジェクトの昇順ソート
     });
 
-    console.log("listing3:",listing3);
+    //console.log("listing3:",listing3);
     setListings(listing3);
 
     // //並び替えのために再取得
@@ -210,8 +228,6 @@ export default function Study() {
             <Swiper
               spaceBetween={50}
               slidesPerView={1}
-              onSlideChange={() => console.log('slide change')}
-              onSwiper={(swiper) => console.log(swiper)}
             >
               {listings.map((listing) => (
                 <SwiperSlide key={listing.id}>
