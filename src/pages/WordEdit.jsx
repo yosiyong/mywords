@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Spinner from "../components/Spinner";
 import { toast } from "react-toastify";
 import { db, auth } from "../firebase";
-import { addDoc, setDoc, getDoc, doc, updateDoc, collection, serverTimestamp, getDocs, query, where } from "firebase/firestore";
+import { setDoc, getDoc, doc, updateDoc, collection, serverTimestamp, getDocs, query, where } from "firebase/firestore";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function WordEdit() {
@@ -21,8 +21,8 @@ export default function WordEdit() {
   } = formData;
 
   const params = useParams();
-  const inputRef = useRef();
-  const handleFocus = (event) => event.target.select();
+  //const inputRef = useRef();
+  //const handleFocus = (event) => event.target.select();
 
   useEffect(() => {
     //console.log("listing", listing);
@@ -69,7 +69,7 @@ export default function WordEdit() {
   }
 
   async function onSubmit(e) {
-    inputRef.current.focus();
+    //inputRef.current.focus();
     e.preventDefault();
     setLoading(true);
 
@@ -95,7 +95,7 @@ export default function WordEdit() {
     );
     const querySnap = await getDocs(wordsQuery);
     const lastVisible = querySnap.docs.length-1;
-    
+    //console.log(querySnap.docs);
     if (lastVisible > -1) {
       //単語存在
       console.log('word exist');
@@ -149,6 +149,7 @@ export default function WordEdit() {
       setLoading(false);
       toast.success("更新しました。");
       navigate(`/words-list`);
+
     }else {
       console.log('new add');
       toast.success("該当する単語が存在しません。");
@@ -173,11 +174,11 @@ return (
       
       {/* 説明 */}
       <p className="text-lg mt-6 font-semibold">説明</p>
-      <textarea type="text" id="description" value={description} onChange={onChange} onFocus={handleFocus}
-        placeholder="説明" inputmode="kana" required maxLength="500" minLength="1" 
+      <textarea type="text" id="description" value={description} onChange={onChange} 
+        placeholder="説明" inputMode="kana" required maxLength="500" minLength="1" 
         className="w-full px-4 h-[200px] py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600" />
 
-      <button type="submit" onClick={()=>inputRef.current.focus()} className="mt-6 mb-6 w-full px-7 py-3 bg-blue-600 text-white font-medium text-sm uppercase rounded shadow-md hover:bg-blue-700 focus:shadow-lg active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
+      <button type="submit" className="mt-6 mb-6 w-full px-7 py-3 bg-blue-600 text-white font-medium text-sm uppercase rounded shadow-md hover:bg-blue-700 focus:shadow-lg active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
         更新</button>
     </form>
   </main>

@@ -20,7 +20,7 @@ export default function WordSave() {
   } = formData;
 
   const inputRef = useRef();
-  const handleFocus = (event) => event.target.select();
+  //const handleFocus = (event) => event.target.select();
 
   function onChange(e) {
     let boolean = null;
@@ -41,7 +41,7 @@ export default function WordSave() {
   }
 
   async function onSubmit(e) {
-    inputRef.current.focus();
+    //inputRef.current.focus();
     e.preventDefault();
     setLoading(true);
 
@@ -169,14 +169,14 @@ return (
       
       {/* 単語 */}
       <p className="text-lg mt-6 font-semibold">単語</p>
-      <input type="text" id="word" ref={inputRef} value={word} onChange={onChange} onFocus={handleFocus}
+      <input type="text" id="word" ref={inputRef} value={word} onChange={onChange} 
       placeholder="単語" inputMode="latin" maxLength="100" minLength="1" required 
       className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600" />
 
       
       {/* 説明 */}
       <p className="text-lg mt-6 font-semibold">説明</p>
-      <textarea type="text" id="description" value={description} onChange={onChange} onFocus={handleFocus}
+      <textarea type="text" id="description" value={description} onChange={onChange} 
         placeholder="説明" inputMode="kana" required maxLength="500" minLength="1" 
         className="w-full px-4 py-2 h-[200px] text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600" />
 
