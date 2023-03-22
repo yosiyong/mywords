@@ -68,6 +68,7 @@ import {
             
             historyPromises.forEach((h) => {
                 if (d.id == h.data.word_id) {
+                //console.log(d.id, ' => ', h.data);
                   return listings.push({
                       id: d.id,
                       word: d.data(),

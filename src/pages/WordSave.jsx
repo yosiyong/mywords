@@ -96,7 +96,7 @@ export default function WordSave() {
           last_studied_at: serverTimestamp()
         };
         const collectionPath = doc(db, "words", wordDocId, "history",auth.currentUser.uid);
-        setDoc(collectionPath, subData);
+        await setDoc(collectionPath, subData);
       }
 
       // //サブコレクションhistory取得
@@ -144,7 +144,7 @@ export default function WordSave() {
         last_studied_at: serverTimestamp()
       };
       const collectionPath = doc(db, "words", document.id, "history",auth.currentUser.uid);
-      setDoc(collectionPath, subData);
+      await setDoc(collectionPath, subData);
 
       // addDoc(collection(wordsRef, document.id, 'history'), subData),
 
