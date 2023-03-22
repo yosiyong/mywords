@@ -52,7 +52,7 @@ export default function SignUp() {
       toast.success("register success")
       navigate("/");
     } catch (error) {
-      console.log(error);
+      console.log("SignUp:",error);
       toast.error("register error")
     }
   }
