@@ -180,7 +180,7 @@ export default function WordEdit() {
 
      setLoading(false);
      toast.success("更新しました。");
-     navigate(`/words-list`);
+     //navigate(`/words-list`);
   }
 
   function onSubmit(e) {

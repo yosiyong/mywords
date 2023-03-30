@@ -1,11 +1,11 @@
-import Moment from "react-moment";
 import { ImSad } from "react-icons/im";
 import { ImHappy } from "react-icons/im";
 import ReactCardFlip from 'react-card-flip';
 import { useState} from "react";
 import React from "react";
+import { FcEditImage } from "react-icons/fc";
 
-export default function ListingItem({ id, listing, history, onCorrect, onInCorrect }) {
+export default function ListingItem({ id, listing, history, onCorrect, onInCorrect, onEdit }) {
   const [isFlipped, setIsFlipped] = useState(false);
   
   function flipCard() {
@@ -47,6 +47,13 @@ export default function ListingItem({ id, listing, history, onCorrect, onInCorre
           <ImHappy
             className="absolute bottom-4 left-4 w-10 h-10 cursor-pointer "
             onClick={() => onCorrect(listing.id)}
+          />
+        )}
+
+        {onEdit && (
+          <FcEditImage
+            className="absolute bottom-4 item-center w-5 h-5 cursor-pointer "
+            onClick={() => onEdit(listing.id)}
           />
         )}
         

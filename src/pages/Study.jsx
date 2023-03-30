@@ -15,13 +15,14 @@ import WordItem from "../components/WordItem";
 import moment from "moment";
 import Spinner from "../components/Spinner";
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { useNavigate } from "react-router-dom";
 
 // Import Swiper styles
 import 'swiper/css';
 
 export default function Study() {
   //const auth = getAuth();
-  //const navigate = useNavigate();
+  const navigate = useNavigate();
   const [listings, setListings] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -210,6 +211,12 @@ export default function Study() {
     // fetchUserListings();
   }
 
+  //編集画面へ遷移
+  function onEdit(listingID) {
+    //console.log(listingID);
+    navigate(`/word-edit/${listingID}`);
+  }
+
   if (loading) {
     return <Spinner />;
   }
@@ -225,6 +232,13 @@ export default function Study() {
               </h2>
               <span className="ml-3 mt-3 text-sm font-semibold align-middle text-gray-400 border-b-[3px] border-b-transparent">{listings.length}単語</span>
             </div>
+            {/* <div className="flex bg-color-red">
+              <ul className="md:flex hidden space-x-5">
+                <li className="cursor-pointer py-3 text-sm font-semibold text-blue-800 border-b-[3px] border-b-transparent text-black border-b-red-500">進捗率100%</li>
+                <li className="cursor-pointer py-3 text-sm font-semibold text-blue-800 border-b-[3px] border-b-transparent text-black border-b-red-500">進捗率100%</li>
+                <li className="cursor-pointer py-3 text-sm font-semibold text-blue-800 border-b-[3px] border-b-transparent text-black border-b-red-500">進捗率100%</li>
+              </ul>
+            </div> */}
             <Swiper
               spaceBetween={50}
               slidesPerView={1}
@@ -236,7 +250,8 @@ export default function Study() {
                     listing={listing.word}
                     history={listing.history}
                     onCorrect={() => onIknow(listing.id)}
-                    onInCorrect={() => onIdontknow(listing.id)}
+                    onInCorrect={() => onIdontknow(listing.id)} 
+                    onEdit={() => onEdit(listing.id)} 
                   />
                 </SwiperSlide>
               ))}
