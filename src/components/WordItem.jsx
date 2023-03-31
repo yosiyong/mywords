@@ -34,6 +34,7 @@ export default function ListingItem({ id, listing, history, onCorrect, onInCorre
             <h6 className="text-xl font-medium text-gray-900 dark:text-white">
               {listing.word}
             </h6>
+            <span className="absolute bottom-4 left-4 mt-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent">正解率：{history.correct_rate}%</span>
           </div>
 
       </li>
