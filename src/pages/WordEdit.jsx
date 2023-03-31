@@ -30,7 +30,7 @@ export default function WordEdit() {
     //console.log("params", params);
     if (listing && listing.update_user !== auth.currentUser.uid) {
       toast.error("編集可能なユーザーではありません。");
-      navigate("/words-list");
+      //navigate("/words-list");
     }
   }, [auth.currentUser.uid, listing, navigate]);
 
@@ -141,7 +141,7 @@ export default function WordEdit() {
         
       setLoading(false);
       toast.success("更新しました。");
-      navigate(`/words-list`);
+      //navigate(`/words-list`);
 
     }else {
       console.log('new add');
