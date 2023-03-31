@@ -25,6 +25,7 @@ export default function Study() {
   const navigate = useNavigate();
   const [listings, setListings] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedData, setSelectedData] = useState('default');
 
   //単語データ取得
   async function fetchUserListings() {
@@ -41,24 +42,24 @@ export default function Study() {
     historySnapshot.forEach((h) => {
       //console.log(h.id, ' => ', h.data());
 
-      const correct = h.data().correct;
-      const correct_count = h.data().correct_count;
-      const correct_rate = h.data().correct_rate;
-      const last_studied_at = moment(h.data().last_studied_at?.toDate());
-      const nowday = moment();
+      // const correct = h.data().correct;
+      // const correct_count = h.data().correct_count;
+      // const correct_rate = h.data().correct_rate;
+      // const last_studied_at = moment(h.data().last_studied_at?.toDate());
+      // const nowday = moment();
 
-      const diffday = nowday.diff(last_studied_at,'days');
-      //console.log(diffDay);
+      // const diffday = nowday.diff(last_studied_at,'days');
+      // //console.log(diffDay);
 
       //前回不正、1回目勉強後、1日過ぎている場合、2回目勉強後7日過ぎている場合、3回目勉強後、30日過ぎている場合
-      if ((correct == false) || (correct_count == 1 && diffday >= 1) || (correct_count == 2 && diffday >= 7) || (correct_count == 3 && diffday >= 30) ) {
+      // if ((correct == false) || (correct_count == 1 && diffday >= 1) || (correct_count == 2 && diffday >= 7) || (correct_count == 3 && diffday >= 30) ) {
         const docRef = h.ref;   //history collection data
         const parentCollectionRef = docRef.parent;  //collection reference
         const immediateParentDocumentRef = parentCollectionRef.parent;  //wordsのdocument reference
         //wordsのdocumentデータ取得して配列に格納
         parentsPromises.push(getDoc(immediateParentDocumentRef));
         historyPromises.push({id:h.id,data:h.data()});
-      }
+      // }
       // }else if (correct_rate <= 70) {
       //   console.log('正解率');
       //   //上記のデータが存在しなければ、正解率５０以下データ取得
@@ -78,7 +79,7 @@ export default function Study() {
     wordsSnap.forEach((d) => {
 
       if (d.data() == null) {
-        console.log('null data word id:', d.id);
+        //console.log('null data word id:', d.id);
         // deleteDoc(doc(db, "words", d.id,"history", auth.currentUser.uid));
         // deleteDoc(doc(db, "words", d.id));
       }
@@ -86,12 +87,52 @@ export default function Study() {
       if (d.data() != null) {
         historyPromises.forEach((h) => {
           if (d.id == h.data.word_id) {
-            return listings.push({
-              id: d.id,
-              word: d.data(),
-              history: h.data,
-              last_studied_at: h.data.last_studied_at.toDate()
-            });
+            const correct = h.data.correct;                  //直近学習正解フラグ
+            const correct_count = h.data.correct_count;     //正解回数
+            const correct_rate = h.data.correct_rate;       //正解率
+            const last_studied_at = moment(h.data.last_studied_at?.toDate()); //直近学習日
+            const nowday = moment();
+            const diffday = nowday.diff(last_studied_at,'days');
+
+            //通常
+            if (selectedData === 'default') {
+              //console.log('h.data:',h.data);
+              //console.log('d.data():',d.data());
+
+              //console.log('diffDay:',diffDay);
+
+              //前回不正、1回目勉強後、1日過ぎている場合、2回目勉強後7日過ぎている場合、3回目勉強後、30日過ぎている場合
+              if ((correct == false) || (correct_count == 1 && diffday >= 1) || (correct_count == 2 && diffday >= 7) || (correct_count == 3 && diffday >= 30) ) {
+                return listings.push({
+                  id: d.id,
+                  word: d.data(),
+                  history: h.data,
+                  last_studied_at: h.data.last_studied_at.toDate()
+                });
+              }
+            }else if(selectedData === 'rate80less') {
+              //正解率80%未満
+              if (correct_rate < 80) {
+                //console.log('correct_rate:',correct_rate);
+                return listings.push({
+                  id: d.id,
+                  word: d.data(),
+                  history: h.data,
+                  last_studied_at: h.data.last_studied_at.toDate()
+                });
+              }
+            } else if(selectedData === 'after32days') {
+              //最終学習日が31日以上
+              if (diffday > 30) {
+                //console.log('diffday:',diffday);
+                return listings.push({
+                  id: d.id,
+                  word: d.data(),
+                  history: h.data,
+                  last_studied_at: h.data.last_studied_at.toDate()
+                });
+              }
+            }
           }
         });
       }
@@ -110,8 +151,9 @@ export default function Study() {
   //auth.currentUser.uidが変更された場合、実施
   useEffect(()=>{
     //Listingsデータ取得
+    console.log('data select')
      fetchUserListings();
-  },[auth.currentUser.uid]);
+  },[auth.currentUser.uid,selectedData]);
 
   async function onIknow(listingID) {
     // if (window.confirm("Are you sure you want to delete?")) {
@@ -130,15 +172,20 @@ export default function Study() {
       //学習履歴更新
       const updateRef = doc(db, "words", listingID ,"history",auth.currentUser.uid);
 
+      //正解した回数
       const correct_count = lists[0].history.correct_count + 1;
+      //勉強回数
       const study_count = lists[0].history.study_count + 1;
+
+      //正解率計算
       let correct_rate = 0
       if (correct_count > 0) {
         correct_rate = (correct_count/study_count)*100;
         correct_rate = correct_rate.toFixed(0);
-        console.log("correct_rate:",correct_rate);
+        //console.log("correct_rate:",correct_rate);
       }
 
+      //履歴更新
       await updateDoc(updateRef, {
         correct: true,
         correct_count: correct_count,
@@ -175,7 +222,7 @@ export default function Study() {
     if (correct_count > 0) {
       correct_rate = (correct_count/study_count)*100;
       correct_rate = correct_rate.toFixed(0);
-      console.log("correct_rate:",correct_rate);
+      //console.log("correct_rate:",correct_rate);
     }
     
     await updateDoc(updateRef, {
@@ -217,6 +264,12 @@ export default function Study() {
     navigate(`/word-edit/${listingID}`);
   }
 
+  function onSelectChange(e) {
+    //console.log('seleted filter:',e.target.value);
+    setSelectedData(e.target.value);
+  }
+
+
   if (loading) {
     return <Spinner />;
   }
@@ -224,7 +277,6 @@ export default function Study() {
   return (
     <>
       <div className="max-w-6xl px-3 mt-6 mx-auto">
-        {!loading && listings.length > 0 && (
           <>
             <div className="flex justify-center items-center mb-6">
               <h2 className="text-2xl text-center font-semibold">
@@ -232,13 +284,15 @@ export default function Study() {
               </h2>
               <span className="ml-3 mt-3 text-sm font-semibold align-middle text-gray-400 border-b-[3px] border-b-transparent">{listings.length}単語</span>
             </div>
-            {/* <div className="flex bg-color-red">
-              <ul className="md:flex hidden space-x-5">
-                <li className="cursor-pointer py-3 text-sm font-semibold text-blue-800 border-b-[3px] border-b-transparent text-black border-b-red-500">進捗率100%</li>
-                <li className="cursor-pointer py-3 text-sm font-semibold text-blue-800 border-b-[3px] border-b-transparent text-black border-b-red-500">進捗率100%</li>
-                <li className="cursor-pointer py-3 text-sm font-semibold text-blue-800 border-b-[3px] border-b-transparent text-black border-b-red-500">進捗率100%</li>
-              </ul>
-            </div> */}
+            <div className="ml-3">
+            <span className="ml-3 mt-3 text-sm font-semibold align-middle text-gray-400 border-b-[3px] border-b-transparent">抽出条件：</span>
+              <select id="lang" onChange={onSelectChange} value={selectedData} className="text-sm text-gray-700 bg-white border-gray-300 rounded transition ease-in-out">
+                  <option value="default">通常</option>
+                  <option value="rate80less">正解率80％未満</option>
+                  <option value="after32days">最終学習から31日以上経過</option>
+               </select>
+            </div>
+            {!loading && listings.length > 0 && (
             <Swiper
               spaceBetween={50}
               slidesPerView={1}
@@ -256,9 +310,8 @@ export default function Study() {
                 </SwiperSlide>
               ))}
             </Swiper>
+             )}
           </>
-          )}
-      
       </div>
     </>
   );
