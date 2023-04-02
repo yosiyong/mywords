@@ -26,6 +26,7 @@ export default function Study() {
   const [listings, setListings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedData, setSelectedData] = useState('default');
+  const [inputMode, setInputMode] = useState(false);
 
   //単語データ取得
   async function fetchUserListings() {
@@ -42,34 +43,12 @@ export default function Study() {
     historySnapshot.forEach((h) => {
       //console.log(h.id, ' => ', h.data());
 
-      // const correct = h.data().correct;
-      // const correct_count = h.data().correct_count;
-      // const correct_rate = h.data().correct_rate;
-      // const last_studied_at = moment(h.data().last_studied_at?.toDate());
-      // const nowday = moment();
-
-      // const diffday = nowday.diff(last_studied_at,'days');
-      // //console.log(diffDay);
-
-      //前回不正、1回目勉強後、1日過ぎている場合、2回目勉強後7日過ぎている場合、3回目勉強後、30日過ぎている場合
-      // if ((correct == false) || (correct_count == 1 && diffday >= 1) || (correct_count == 2 && diffday >= 7) || (correct_count == 3 && diffday >= 30) ) {
         const docRef = h.ref;   //history collection data
         const parentCollectionRef = docRef.parent;  //collection reference
         const immediateParentDocumentRef = parentCollectionRef.parent;  //wordsのdocument reference
         //wordsのdocumentデータ取得して配列に格納
         parentsPromises.push(getDoc(immediateParentDocumentRef));
         historyPromises.push({id:h.id,data:h.data()});
-      // }
-      // }else if (correct_rate <= 70) {
-      //   console.log('正解率');
-      //   //上記のデータが存在しなければ、正解率５０以下データ取得
-      //   const docRef = h.ref;   //history collection data
-      //   const parentCollectionRef = docRef.parent;  //collection reference
-      //   const immediateParentDocumentRef = parentCollectionRef.parent;  //wordsのdocument reference
-      //   //wordsのdocumentデータ取得して配列に格納
-      //   parentsPromises.push(getDoc(immediateParentDocumentRef));
-      //   historyPromises.push({id:h.id,data:h.data()});
-      // }
     });
 
     //wordsのdocumentデータ
@@ -98,7 +77,6 @@ export default function Study() {
             if (selectedData === 'default') {
               //console.log('h.data:',h.data);
               //console.log('d.data():',d.data());
-
               //console.log('diffDay:',diffDay);
 
               //前回不正、1回目勉強後、1日過ぎている場合、2回目勉強後7日過ぎている場合、3回目勉強後、30日過ぎている場合
@@ -285,12 +263,14 @@ export default function Study() {
               <span className="ml-3 mt-3 text-sm font-semibold align-middle text-gray-400 border-b-[3px] border-b-transparent">{listings.length}単語</span>
             </div>
             <div className="ml-3">
-            <span className="ml-3 mt-3 text-sm font-semibold align-middle text-gray-400 border-b-[3px] border-b-transparent">抽出条件：</span>
+              <span className="ml-3 mt-3 text-sm font-semibold align-middle text-gray-400 border-b-[3px] border-b-transparent">抽出条件：</span>
               <select id="lang" onChange={onSelectChange} value={selectedData} className="text-sm text-gray-700 bg-white border-gray-300 rounded transition ease-in-out">
                   <option value="default">通常</option>
                   <option value="rate80less">正解率80％未満</option>
                   <option value="after32days">最終学習から31日以上経過</option>
                </select>
+               <input id="default-checkbox" type="checkbox" value="" onChange={()=>setInputMode(!inputMode)} class="ml-3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+               <label for="default-checkbox" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">入力モードで学習</label>
             </div>
             {!loading && listings.length > 0 && (
             <Swiper
@@ -306,6 +286,7 @@ export default function Study() {
                     onCorrect={() => onIknow(listing.id)}
                     onInCorrect={() => onIdontknow(listing.id)} 
                     onEdit={() => onEdit(listing.id)} 
+                    inputmode={inputMode}
                   />
                 </SwiperSlide>
               ))}

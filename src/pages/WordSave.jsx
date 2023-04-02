@@ -163,7 +163,7 @@ export default function WordSave() {
   }
 
 return (
-  <main className="max-w-md px-2 mx-auto">
+  <main className="max-w-2xl px-2 mx-auto">
     <h1 className="text-3xl text-center mt-6 font-bold">単語登録</h1>
     <form onSubmit={onSubmit}>
       
@@ -178,7 +178,7 @@ return (
       <p className="text-lg mt-6 font-semibold">説明</p>
       <textarea type="text" id="description" value={description} onChange={onChange} 
         placeholder="説明" inputMode="kana" required maxLength="500" minLength="1" 
-        className="w-full px-4 py-2 h-[200px] text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600" />
+        className="w-full px-4 py-2 h-[400px] text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600" />
 
       <button type="submit" onClick={()=>inputRef.current.focus()} className="mt-6 mb-6 w-full px-7 py-3 bg-blue-600 text-white font-medium text-sm uppercase rounded shadow-md hover:bg-blue-700 focus:shadow-lg active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
         登録</button>
