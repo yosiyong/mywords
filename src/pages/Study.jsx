@@ -262,15 +262,19 @@ export default function Study() {
               </h2>
               <span className="ml-3 mt-3 text-sm font-semibold align-middle text-gray-400 border-b-[3px] border-b-transparent">{listings.length}単語</span>
             </div>
-            <div className="ml-3">
-              <span className="ml-3 mt-3 text-sm font-semibold align-middle text-gray-400 border-b-[3px] border-b-transparent">抽出条件：</span>
-              <select id="lang" onChange={onSelectChange} value={selectedData} className="text-sm text-gray-700 bg-white border-gray-300 rounded transition ease-in-out">
-                  <option value="default">通常</option>
-                  <option value="rate80less">正解率80％未満</option>
-                  <option value="after32days">最終学習から31日以上経過</option>
-               </select>
-               <input id="default-checkbox" type="checkbox" value="" onChange={()=>setInputMode(!inputMode)} class="ml-3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-               <label for="default-checkbox" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">入力モードで学習</label>
+            <div className="flex w-full md:flex-row flex-col mx-auto sm:space-x-2 sm:space-y-0 space-y-2 sm:px-0 items-center">
+              <div className="relative flex-grow w-full">
+                <span className="ml-3 mt-3 text-sm font-semibold align-middle text-gray-400 border-b-[3px] border-b-transparent">抽出条件：</span>
+                <select id="lang" onChange={onSelectChange} value={selectedData} className="text-sm text-gray-700 bg-white border-gray-300 rounded transition ease-in-out">
+                    <option value="default">通常</option>
+                    <option value="rate80less">正解率80％未満</option>
+                    <option value="after32days">最終学習から31日以上経過</option>
+                </select>
+               </div>
+               <div className="relative flex-grow w-full">
+                <input id="checkInputmode" type="checkbox" value="" onChange={()=>setInputMode(!inputMode)} className="ml-3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                <label htmlFor="checkInputmode" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">入力モードで学習</label>
+               </div>
             </div>
             {!loading && listings.length > 0 && (
             <Swiper
