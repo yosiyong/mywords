@@ -4,18 +4,23 @@ import { toast } from "react-toastify";
 import { db, auth } from "../firebase";
 import { setDoc, getDoc, addDoc, deleteDoc, doc, updateDoc, collection, serverTimestamp, getDocs, query, where } from "firebase/firestore";
 import { useNavigate, useParams } from "react-router-dom";
+import { useSettings } from "../context/SettingsContext";
 
 export default function WordEdit() {
   const navigate = useNavigate();
   //const auth = getAuth();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [listing, setListing] = useState(null);
+  const [categories, setCategories] = useState(null);
+  const settingData = useSettings();
   const [formData, setFormData] = useState({
+    category:"",
     word: "",
     description: ""
   });
   
   const {
+    category,
     word,
     description
   } = formData;
@@ -37,7 +42,26 @@ export default function WordEdit() {
   //指定IDの編集対象データ取得
   useEffect(() => {
     setLoading(true);
+
     async function fetchListing() {
+      const q = query(collection(db, "categories"), where("update_user", "==", auth.currentUser.uid));
+      const querySnapshot = await getDocs(q);
+
+      let categories = [];
+      querySnapshot.forEach((doc) => {
+          //console.log(doc.id, " => ", doc.data());
+          return categories.push({
+                  id: doc.id,
+                  category: doc.data().category,
+                  description: doc.data().description,
+                  update_user: doc.data().update_user
+          });
+      });
+
+      //console.log('categories:',categories);
+      // //取得データ配列をuseStateに格納
+      setCategories(categories);
+
       const docRef = doc(db, "words", params.listingId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
@@ -50,6 +74,7 @@ export default function WordEdit() {
         toast.error("該当する単語が存在しません。");
       }
     }
+
     fetchListing();
   }, [navigate, params.listingId]);
 
@@ -70,9 +95,11 @@ export default function WordEdit() {
         [e.target.id]: boolean ?? e.target.value,
       }));
     }
+
+    console.log('formData:',categories);
   }
 
-
+  //更新処理
   async function onUpdate() {
     //入力データ変数にDB登録するイメージ保存先URL、経度緯度、timestamp,uid情報を格納
     const formDataCopy = {
@@ -131,6 +158,7 @@ export default function WordEdit() {
       //単語データ更新
       const updateRef = doc(db, "words", wordDocId);
       await updateDoc(updateRef, {
+        category:formDataCopy.category,
         word: formDataCopy.word,
         description: formDataCopy.description,
         update_user:auth.currentUser.uid
@@ -149,6 +177,7 @@ export default function WordEdit() {
     }
   }
 
+  //削除処理
   async function onDelete() {
      //履歴削除
      await deleteDoc(doc(db, "words", params.listingId,"history", auth.currentUser.uid));
@@ -207,8 +236,23 @@ export default function WordEdit() {
 
 return (
   <main className="max-w-2xl px-2 mx-auto">
-    <h1 className="text-3xl text-center mt-6 font-bold">単語登録</h1>
+    <div className="flex justify-center items-center mt-8 mb-2">
+      <h2 className="text-2xl text-center font-semibold">単語編集</h2>
+    </div>
     <form onSubmit={onSubmit}>
+
+      {/* 分類 */}
+      {!loading && settingData.category && (
+        <>
+        <p className="text-lg mt-6 font-semibold">分類</p>
+        <select id="category" onChange={onChange} value={category} className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600" >
+          <option value="">分類を選択</option>
+          {categories.map((item,idx) => (
+            <option value={item.category} key={item.id}>{item.category}</option>
+          ))}
+        </select>
+        </>
+      )}
       
       {/* 単語 */}
       <p className="text-lg mt-6 font-semibold">単語</p>

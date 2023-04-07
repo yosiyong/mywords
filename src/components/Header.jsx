@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { FcMenu } from "react-icons/fc";
+import { useSettings } from "../context/SettingsContext";
+
 
 export default function Header() {
 
@@ -10,7 +12,8 @@ export default function Header() {
   const [openMenu, setOpenMenu] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  // console.log(location)
+  const settingData = useSettings();
+  //console.log('header:',settingData);
 
   //ログイン状態によって、ログイン、プロフィールメニュー表示を切り替える
   //const auth = getAuth();
@@ -22,6 +25,7 @@ export default function Header() {
         setPageState("ログイン");
       }
     });
+
   },[auth]);
 
   function pathMatchRoute(route) {
@@ -65,12 +69,24 @@ export default function Header() {
                 </li>
                 <li className="p-2 border-b-2" onClick={() => {pageState == "学習" ? navigate("/study"):navigate("/sign-in"); menuFunction();}}>{pageState}</li>
 
+                  {settingData.category && pageState == "学習" && (
+                  <li className="p-2 border-b-2" onClick={() => {navigate("/word-category"); menuFunction();}}>分類登録</li>
+                  )}
+
+                  {settingData.category && pageState == "学習" && (
+                  <li className="p-2 border-b-2" onClick={() => {navigate("/categories-list"); menuFunction();}}>分類一覧</li>
+                  )}
+
                   {pageState == "学習" && (
                   <li className="p-2 border-b-2" onClick={() => {navigate("/word-save"); menuFunction();}}>単語登録</li>
                   )}
 
-                {pageState == "学習" && (
+                  {pageState == "学習" && (
                   <li className="p-2 border-b-2" onClick={() => {navigate("/words-list"); menuFunction();}}>単語一覧</li>
+                  )}
+
+                  {pageState == "学習" && (
+                  <li className="p-2 border-b-2" onClick={() => {navigate("/settings"); menuFunction();}}>設定</li>
                   )}
 
                   {pageState == "学習" && (
@@ -83,9 +99,19 @@ export default function Header() {
 
         {/* pcの場合のメニュー */}
         <div>
-          <ul className="md:flex hidden space-x-10">
+          <ul className="lg:flex hidden space-x-10">
             <li className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${(pathMatchRoute("/sign-in") || pathMatchRoute("/study")) && "text-black border-b-red-500"}`} 
             onClick={() => pageState == "学習" ? navigate("/study"):navigate("/sign-in")}>{pageState}</li>
+            
+            {settingData.category && pageState == "学習" && (
+            <li className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${pathMatchRoute("/word-category") && "text-black border-b-red-500"}`} 
+            onClick={() => navigate("/word-category")}>分類登録</li>
+            )}
+            
+            {settingData.category && pageState == "学習" && (
+            <li className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${pathMatchRoute("/categories-list") && "text-black border-b-red-500"}`} 
+            onClick={() => navigate("/categories-list")}>分類一覧</li>
+            )}
 
             {pageState == "学習" && (
             <li className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${pathMatchRoute("/word-save") && "text-black border-b-red-500"}`} 
@@ -95,6 +121,11 @@ export default function Header() {
             {pageState == "学習" && (
             <li className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${pathMatchRoute("/words-list") && "text-black border-b-red-500"}`} 
             onClick={() => navigate("/words-list")}>単語一覧</li>
+            )}
+
+            {pageState == "学習" && (
+            <li className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${pathMatchRoute("/settings") && "text-black border-b-red-500"}`} 
+            onClick={() => navigate("/settings")}>設定</li>
             )}
 
             {pageState == "学習" && (
@@ -108,7 +139,7 @@ export default function Header() {
         </div>
 
         {/* mobile場合のメニューボタン */}
-        <button onClick={menuFunction} className='flex md:hidden'>
+        <button onClick={menuFunction} className='flex lg:hidden'>
           <FcMenu />
         </button>
       </header>

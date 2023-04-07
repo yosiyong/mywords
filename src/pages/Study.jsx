@@ -6,7 +6,6 @@ import {
   getDocs,
   query,
   updateDoc,
-  deleteDoc,
   where,
 } from "firebase/firestore";
 import { useState, useEffect } from "react";
@@ -16,6 +15,7 @@ import moment from "moment";
 import Spinner from "../components/Spinner";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { useNavigate } from "react-router-dom";
+import { useSettings } from "../context/SettingsContext";
 
 // Import Swiper styles
 import 'swiper/css';
@@ -27,6 +27,7 @@ export default function Study() {
   const [loading, setLoading] = useState(true);
   const [selectedData, setSelectedData] = useState('default');
   const [inputMode, setInputMode] = useState(false);
+  const settingData = useSettings();
 
   //単語データ取得
   async function fetchUserListings() {
@@ -129,7 +130,7 @@ export default function Study() {
   //auth.currentUser.uidが変更された場合、実施
   useEffect(()=>{
     //Listingsデータ取得
-    console.log('data select')
+    //console.log('data select')
      fetchUserListings();
   },[auth.currentUser.uid,selectedData]);
 
@@ -256,13 +257,15 @@ export default function Study() {
     <>
       <div className="max-w-6xl px-3 mt-6 mx-auto">
           <>
-            <div className="flex justify-center items-center mb-6">
+            <div className="flex justify-center items-center mt-8 mb-2">
               <h2 className="text-2xl text-center font-semibold">
                 My Words
               </h2>
               <span className="ml-3 mt-3 text-sm font-semibold align-middle text-gray-400 border-b-[3px] border-b-transparent">{listings.length}単語</span>
             </div>
             <div className="flex w-full md:flex-row flex-col mx-auto sm:space-x-2 sm:space-y-0 space-y-2 sm:px-0 items-center">
+              
+              {!loading && settingData.filter && (
               <div className="relative flex-grow w-full">
                 <span className="ml-3 mt-3 text-sm font-semibold align-middle text-gray-400 border-b-[3px] border-b-transparent">抽出条件：</span>
                 <select id="lang" onChange={onSelectChange} value={selectedData} className="text-sm text-gray-700 bg-white border-gray-300 rounded transition ease-in-out">
@@ -271,10 +274,14 @@ export default function Study() {
                     <option value="after32days">最終学習から31日以上経過</option>
                 </select>
                </div>
+              )}
+
+              {!loading && settingData.inputmode && (
                <div className="relative flex-grow w-full">
                 <input id="checkInputmode" type="checkbox" value="" onChange={()=>setInputMode(!inputMode)} className="ml-3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                 <label htmlFor="checkInputmode" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">入力モードで学習</label>
                </div>
+              )}
             </div>
             {!loading && listings.length > 0 && (
             <Swiper

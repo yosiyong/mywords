@@ -47,7 +47,7 @@ export default function ListingItem({ id, listing, history, onCorrect, onInCorre
         {/* 表：単語 */}
         <li onClick={flipCard} className="relative bg-white flex flex-col justify-between items-center shadow-md hover:shadow-xl rounded-md overflow-hidden transition-shadow duration-150 m-[10px]">
             <div className="w-full h-[300px] p-[10px] flex flex-col justify-center items-center pb-10 mt-3">
-              <h6 className="text-xl font-medium text-gray-900 dark:text-white">
+              <h6 className="text-xl font-medium text-gray-900 dark:text-gray-800">
                 {listing.word}
               </h6>
               <span className="absolute bottom-4 left-4 mt-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent">正解率：{history.correct_rate}%</span>
@@ -57,7 +57,7 @@ export default function ListingItem({ id, listing, history, onCorrect, onInCorre
         {/* 裏：説明 */}
         <li onClick={flipCard} className="relative bg-white flex flex-col justify-between items-center shadow-md hover:shadow-xl rounded-md overflow-hidden transition-shadow duration-150 m-[10px]">
           <div className="w-full h-auto p-[10px] flex flex-col justify-center items-center pb-16 mt-3">
-            <span className="text-lg text-gray-500 dark:text-gray-400"><MultiLineBody body={listing.description} /></span>
+            <span className="text-lg text-gray-700 dark:text-gray-600"><MultiLineBody body={listing.description} /></span>
           </div>
 
           {onCorrect && (

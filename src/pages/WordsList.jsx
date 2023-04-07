@@ -1,6 +1,5 @@
 import {
     collectionGroup,
-    serverTimestamp,
     doc,
     getDoc,
     getDocs,
@@ -15,6 +14,7 @@ import {
   import { RiDeleteBinLine } from "react-icons/ri";
   import { toast } from "react-toastify";
   import Spinner from "../components/Spinner";
+  import { useSettings } from "../context/SettingsContext";
   
   export default function WordsList() {
     //const auth = getAuth();
@@ -22,6 +22,7 @@ import {
     const [listings, setListings] = useState(null);
     const [loading, setLoading] = useState(true);
     const [word, setWord] = useState("");
+    const settingData = useSettings();
 
     const inputRef = useRef();
     const handleFocus = (event) => event.target.select();
@@ -148,7 +149,7 @@ import {
             <>
 
               <div className="container max-w-7xl mx-auto mt-8">
-                <div className="mb-4">
+                <div className="mb-2">
                     <h2 className="text-2xl text-center font-semibold">My Words</h2>
                 </div>
 
@@ -170,6 +171,11 @@ import {
                             <th
                                 className="px-5 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                                 No.</th>
+                            {settingData.category && (
+                            <th
+                                className="px-5 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                                分類</th>
+                            )}
                             <th
                                 className="px-5 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                                 単語</th>
@@ -190,6 +196,11 @@ import {
                                         {idx}
                                         </div>
                                     </td>
+                                    {settingData.category && (
+                                    <td className="px-5 py-4 whitespace-no-wrap border-b border-gray-200">
+                                        <div className="text-sm leading-5 text-gray-900">{listing.word.category}</div>
+                                    </td>
+                                    )}
 
                                     <td className="px-5 py-4 whitespace-no-wrap border-b border-gray-200">
                                         <div className="text-sm leading-5 text-gray-900">{listing.word.word}</div>

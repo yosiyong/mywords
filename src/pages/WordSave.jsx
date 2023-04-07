@@ -1,20 +1,25 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Spinner from "../components/Spinner";
 import { toast } from "react-toastify";
 import { db, auth } from "../firebase";
-import { addDoc, setDoc, getDoc, doc, updateDoc, collectionGroup, collection, serverTimestamp, getDocs, query, where } from "firebase/firestore";
+import { addDoc, setDoc, getDoc, doc, updateDoc, collection, serverTimestamp, getDocs, query, where } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { useSettings } from "../context/SettingsContext";
 
 export default function WordSave() {
   const navigate = useNavigate();
   //const auth = getAuth();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [listings, setListings] = useState(null);
+  const settingData = useSettings();
   const [formData, setFormData] = useState({
+    category:"",
     word: "",
     description: ""
   });
   
   const {
+    category,
     word,
     description
   } = formData;
@@ -22,8 +27,35 @@ export default function WordSave() {
   const inputRef = useRef();
   //const handleFocus = (event) => event.target.select();
 
+  useEffect(() => {
+    async function fetchListing() {
+      setLoading(true);
+      const q = query(collection(db, "categories"), where("update_user", "==", auth.currentUser.uid));
+      const querySnapshot = await getDocs(q);
+
+      let listings = [];
+      querySnapshot.forEach((doc) => {
+          //console.log(doc.id, " => ", doc.data());
+          return listings.push({
+                  id: doc.id,
+                  category: doc.data().category,
+                  description: doc.data().description,
+                  update_user: doc.data().update_user
+          });
+      });
+
+      //console.log('categories:',listings);
+
+      // //取得データ配列をuseStateに格納
+      setListings(listings);
+      setLoading(false);
+    }
+    fetchListing();
+  }, [navigate]);
+
   function onChange(e) {
     let boolean = null;
+    //console.log('onchange:',e.target.value);
     if (e.target.value === "true") {
       boolean = true;
     }
@@ -112,7 +144,8 @@ export default function WordSave() {
       await updateDoc(updateRef, {
         word: formDataCopy.word,
         description: formDataCopy.description,
-        update_user:auth.currentUser.uid
+        update_user:auth.currentUser.uid,
+        category:formDataCopy.category
       });
 
       //入力クリア
@@ -164,8 +197,23 @@ export default function WordSave() {
 
 return (
   <main className="max-w-2xl px-2 mx-auto">
-    <h1 className="text-3xl text-center mt-6 font-bold">単語登録</h1>
+    <div className="flex justify-center items-center mt-8 mb-2">
+      <h2 className="text-2xl text-center font-semibold">単語登録</h2>
+    </div>
     <form onSubmit={onSubmit}>
+      {/* 分類 */}
+      {!loading && settingData.category && (
+        <>
+          <p className="text-lg mt-6 font-semibold">分類</p>
+          <select id="category" onChange={onChange} value={category} className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600" >
+            <option value="">分類を選択</option>
+            {listings.map((listing,idx) => (
+              <option value={listing.category} key={listing.id}>{listing.category}</option>
+            ))}
+          </select>
+        </>
+       )}
+
       
       {/* 単語 */}
       <p className="text-lg mt-6 font-semibold">単語</p>
