@@ -1,6 +1,7 @@
 import {
     collectionGroup,
     doc,
+    updateDoc,
     getDoc,
     getDocs,
     query,
@@ -15,6 +16,7 @@ import {
   import { toast } from "react-toastify";
   import Spinner from "../components/Spinner";
   import { useSettings } from "../context/SettingsContext";
+  import useGetCategories  from "../hooks/useGetCategories";
   
   export default function WordsList() {
     //const auth = getAuth();
@@ -22,13 +24,34 @@ import {
     const [listings, setListings] = useState(null);
     const [loading, setLoading] = useState(true);
     const [word, setWord] = useState("");
+    const [category, setCategory] = useState("");
+    const [checkedList, setCheckedList] = useState([]);
     const settingData = useSettings();
-
+    const {categories} = useGetCategories();
     const inputRef = useRef();
     const handleFocus = (event) => event.target.select();
-  
-    function onChange(e) {
+
+
+    //検索キーワードイベント
+    function onKeywordChange(e) {
         setWord(e.target.value);
+    }
+
+    //分類選択イベント
+    function onCategoryChange(e) {
+        setCategory(e.target.value);
+    }
+
+    //選択チェックイベント
+    function onSelected(e) {
+        //console.log('onchange:',e.target.checked);
+        if (e.target.checked) {
+            //チェックIDを追加
+            setCheckedList([...checkedList, e.target.id])
+        }else{
+            //IDを削除
+            setCheckedList(checkedList.filter((fruit, index) => (fruit !== e.target.id)))
+        }
     }
   
     //単語データ取得
@@ -98,6 +121,7 @@ import {
        fetchUserListings();
     },[auth.currentUser.uid]);
   
+    //削除ボタンイベント
     async function onDelete(listingID) {
       if (window.confirm("削除してもよろしいですか。")) {
         
@@ -114,10 +138,12 @@ import {
       }
     }
 
+    //編集ボタンイベント
     function onEdit(listingID) {
-        navigate(`/word-edit/${listingID}`);
+        navigate(`/word-edit/${listingID}?from=words-list`);
     }
 
+    //検索ボタンイベント
     function onSearch(e) {
         e.preventDefault();
         //console.log("word:", word);
@@ -137,6 +163,28 @@ import {
             fetchUserListings();
         }
     }
+
+    //分類するボタンイベント
+    async function onCategory(e) {
+        e.preventDefault();
+        console.log("selected category:", category);
+        //if (category) {
+            if (checkedList.length > 0) {
+                setLoading(true);
+                //console.log('checkedList:',checkedList);
+                await Promise.all(checkedList.map(async (item)=>{
+                    const updateRef = doc(db, "words", item);
+                    await updateDoc(updateRef, {
+                      category:category
+                    });
+                }));
+
+                fetchUserListings();
+                setLoading(false);
+                toast.success("分類登録しました。");
+            }
+        //}
+    }
   
     if (loading) {
         return <Spinner />;
@@ -152,13 +200,27 @@ import {
                 <div className="mb-2">
                     <h2 className="text-2xl text-center font-semibold">My Words</h2>
                 </div>
-
-                <div className="container px-1 py-8 flex flex-wrap mx-auto items-center">
-                    <div className="flex md:flex-nowrap flex-wrap justify-center items-end md:justify-start">
-                        <div className="relative sm:w-64 w-40 sm:mr-4 mr-2">
-                        <input type="text" id="word" ref={inputRef} value={word} onChange={onChange} onFocus={handleFocus} maxLength="32" minLength="2" placeholder="検索する単語" className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:ring-2 focus:bg-transparent focus:ring-indigo-200 focus:border-indigo-500 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+           
+                <div className="container m-8 mx-auto">
+                    <div className="flex lg:w-full w-full sm:flex-row flex-col mx-auto px-4 sm:space-x-4 sm:space-y-0 space-y-4 sm:px-0 items-center">
+     
+                        <div className="relative flex-grow">
+                            <input type="text" id="word" ref={inputRef} value={word} onChange={onKeywordChange} onFocus={handleFocus} maxLength="32" minLength="2" placeholder="検索する単語" className="w-1/2 bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-transparent focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"/>
+                            <button onClick={onSearch} className="text-white ml-5 w-[100px] bg-indigo-500 border-0 p-2 focus:outline-none hover:bg-indigo-600 rounded text-md">検索</button>
                         </div>
-                        <button onClick={onSearch} className="inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">検索</button>
+                        {settingData.category && categories && (
+                            <>
+                            <div className="relative flex-grow">
+                                <select id="category" onChange={onCategoryChange} value={category} className="w-full first-line:bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-transparent focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" >
+                                        <option value="">分類を選択</option>
+                                        {categories.map((listing,idx) => (
+                                        <option value={listing.category} key={listing.id}>{listing.category}</option>
+                                        ))}
+                                </select>
+                            </div>
+                            <button onClick={onCategory} className="text-white w-[150px] bg-indigo-500 border-0 p-2 focus:outline-none hover:bg-indigo-600 rounded text-md">分類する</button>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -171,6 +233,12 @@ import {
                             <th
                                 className="px-5 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                                 No.</th>
+                            {settingData.category && (
+                            <th
+                                className="px-5 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                                選択</th>
+                            )}
+
                             {settingData.category && (
                             <th
                                 className="px-5 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
@@ -196,6 +264,11 @@ import {
                                         {idx}
                                         </div>
                                     </td>
+                                    {settingData.category && (
+                                    <td className="px-5 py-4 whitespace-no-wrap border-b border-gray-200">
+                                        <input id={listing.id} type="checkbox" onChange={onSelected} />
+                                    </td>
+                                    )}
                                     {settingData.category && (
                                     <td className="px-5 py-4 whitespace-no-wrap border-b border-gray-200">
                                         <div className="text-sm leading-5 text-gray-900">{listing.word.category}</div>

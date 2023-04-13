@@ -3,7 +3,7 @@ import Spinner from "../components/Spinner";
 import { toast } from "react-toastify";
 import { db, auth } from "../firebase";
 import { setDoc, getDoc, addDoc, deleteDoc, doc, updateDoc, collection, serverTimestamp, getDocs, query, where } from "firebase/firestore";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams,useLocation } from "react-router-dom";
 import { useSettings } from "../context/SettingsContext";
 
 export default function WordEdit() {
@@ -26,6 +26,10 @@ export default function WordEdit() {
   } = formData;
 
   const params = useParams();
+  const search = useLocation().search;
+  const urlparam = new URLSearchParams(search);
+  const frompage = urlparam.get('from');
+
   //const inputRef = useRef();
   //const handleFocus = (event) => event.target.select();
 
@@ -35,7 +39,9 @@ export default function WordEdit() {
     //console.log("params", params);
     if (listing && listing.update_user !== auth.currentUser.uid) {
       toast.error("編集可能なユーザーではありません。");
-      //navigate("/words-list");
+      if (frompage){
+        navigate(`/${frompage}`);
+      }
     }
   }, [auth.currentUser.uid, listing, navigate]);
 
@@ -44,23 +50,25 @@ export default function WordEdit() {
     setLoading(true);
 
     async function fetchListing() {
-      const q = query(collection(db, "categories"), where("update_user", "==", auth.currentUser.uid));
-      const querySnapshot = await getDocs(q);
 
-      let categories = [];
-      querySnapshot.forEach((doc) => {
-          //console.log(doc.id, " => ", doc.data());
-          return categories.push({
-                  id: doc.id,
-                  category: doc.data().category,
-                  description: doc.data().description,
-                  update_user: doc.data().update_user
-          });
-      });
+      if (settingData.category) {
+        const q = query(collection(db, "categories"), where("update_user", "==", auth.currentUser.uid));
+        const querySnapshot = await getDocs(q);
 
-      //console.log('categories:',categories);
-      // //取得データ配列をuseStateに格納
-      setCategories(categories);
+        let categories = [];
+        querySnapshot.forEach((doc) => {
+            //console.log(doc.id, " => ", doc.data());
+            return categories.push({
+                    id: doc.id,
+                    category: doc.data().category,
+                    description: doc.data().description,
+                    update_user: doc.data().update_user
+            });
+        });
+        //console.log('categories:',categories);
+        // //取得データ配列をuseStateに格納
+        setCategories(categories);
+      }
 
       const docRef = doc(db, "words", params.listingId);
       const docSnap = await getDoc(docRef);
@@ -70,8 +78,10 @@ export default function WordEdit() {
 
         setLoading(false);
       } else {
-        navigate("/");
         toast.error("該当する単語が存在しません。");
+        if (frompage){
+          navigate(`/${frompage}`);
+        }
       }
     }
 
@@ -96,7 +106,7 @@ export default function WordEdit() {
       }));
     }
 
-    console.log('formData:',categories);
+    //console.log('formData:',categories);
   }
 
   //更新処理
@@ -157,19 +167,29 @@ export default function WordEdit() {
   
       //単語データ更新
       const updateRef = doc(db, "words", wordDocId);
-      await updateDoc(updateRef, {
-        category:formDataCopy.category,
-        word: formDataCopy.word,
-        description: formDataCopy.description,
-        update_user:auth.currentUser.uid
-      });
+      if (formDataCopy.category) {
+        await updateDoc(updateRef, {
+          category:formDataCopy.category,
+          word: formDataCopy.word,
+          description: formDataCopy.description,
+          update_user:auth.currentUser.uid
+        });
+      }else{
+        await updateDoc(updateRef, {
+          word: formDataCopy.word,
+          description: formDataCopy.description,
+          update_user:auth.currentUser.uid
+        });
+      }
 
       //入力クリア
       setFormData({ word: "", description: "" });
         
       setLoading(false);
       toast.success("更新しました。");
-      //navigate(`/words-list`);
+      if (frompage){
+        navigate(`/${frompage}`);
+      }
 
     }else {
       console.log('new add');
@@ -209,7 +229,10 @@ export default function WordEdit() {
 
      setLoading(false);
      toast.success("更新しました。");
-     //navigate(`/words-list`);
+    
+    if (frompage){
+      navigate(`/${frompage}`);
+    }
   }
 
   function onSubmit(e) {

@@ -16,6 +16,7 @@ import Spinner from "../components/Spinner";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { useNavigate } from "react-router-dom";
 import { useSettings } from "../context/SettingsContext";
+import useGetCategories  from "../hooks/useGetCategories";
 
 // Import Swiper styles
 import 'swiper/css';
@@ -28,8 +29,10 @@ export default function Study() {
   const [selectedData, setSelectedData] = useState('default');
   const [inputMode, setInputMode] = useState(false);
   const settingData = useSettings();
+  const {categories} = useGetCategories();
+  const [category, setCategory] = useState("");
 
-  //単語データ取得
+  //▼▼▼単語データ取得----------------
   async function fetchUserListings() {
 
     setLoading(true);
@@ -55,6 +58,10 @@ export default function Study() {
     //wordsのdocumentデータ
     const wordsSnap = await Promise.all(parentsPromises);
 
+    //console.log('抽出条件selectedData:',selectedData);
+    //console.log('抽出条件 category:',category);
+
+
     let listings = [];
     wordsSnap.forEach((d) => {
 
@@ -74,8 +81,8 @@ export default function Study() {
             const nowday = moment();
             const diffday = nowday.diff(last_studied_at,'days');
 
-            //通常
-            if (selectedData === 'default') {
+            //抽出条件：通常
+            if (selectedData === 'default' && category === '') {
               //console.log('h.data:',h.data);
               //console.log('d.data():',d.data());
               //console.log('diffDay:',diffDay);
@@ -90,7 +97,7 @@ export default function Study() {
                 });
               }
             }else if(selectedData === 'rate80less') {
-              //正解率80%未満
+              //抽出条件：正解率80%未満
               if (correct_rate < 80) {
                 //console.log('correct_rate:',correct_rate);
                 return listings.push({
@@ -105,6 +112,15 @@ export default function Study() {
               if (diffday > 30) {
                 //console.log('diffday:',diffday);
                 return listings.push({
+                  id: d.id,
+                  word: d.data(),
+                  history: h.data,
+                  last_studied_at: h.data.last_studied_at.toDate()
+                });
+              }
+            } else if(category !== '') {
+              if (category === d.data().category) {
+                  return listings.push({
                   id: d.id,
                   word: d.data(),
                   history: h.data,
@@ -126,13 +142,14 @@ export default function Study() {
     setListings(listings);
     setLoading(false);
   }
+  //▲▲▲単語データ取得----------------
 
   //auth.currentUser.uidが変更された場合、実施
   useEffect(()=>{
     //Listingsデータ取得
     //console.log('data select')
      fetchUserListings();
-  },[auth.currentUser.uid,selectedData]);
+  },[auth.currentUser.uid,selectedData,category]);
 
   async function onIknow(listingID) {
     // if (window.confirm("Are you sure you want to delete?")) {
@@ -240,14 +257,20 @@ export default function Study() {
   //編集画面へ遷移
   function onEdit(listingID) {
     //console.log(listingID);
-    navigate(`/word-edit/${listingID}`);
+    navigate(`/word-edit/${listingID}?from=study`);
   }
 
+  //抽出条件変更イベント
   function onSelectChange(e) {
     //console.log('seleted filter:',e.target.value);
     setSelectedData(e.target.value);
   }
 
+  //抽出分類変更イベント
+  function onCategoryChange(e) {
+    //console.log('seleted category:',e.target.value);
+    setCategory(e.target.value);
+  }
 
   if (loading) {
     return <Spinner />;
@@ -280,6 +303,18 @@ export default function Study() {
                <div className="relative flex-grow w-full">
                 <input id="checkInputmode" type="checkbox" value="" onChange={()=>setInputMode(!inputMode)} className="ml-3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                 <label htmlFor="checkInputmode" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">入力モードで学習</label>
+               </div>
+              )}
+
+              {!loading && settingData.category && categories && categories.length > 0 && (
+               <div className="relative flex-grow w-full">
+                <select id="category" onChange={onCategoryChange} value={category} className="w-1/4 ml-2 first-line:bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-transparent focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" >
+                    <option value="">抽出する分類を選択</option>
+                    {categories.map((listing,idx) => (
+                    <option value={listing.category} key={listing.id}>{listing.category}</option>
+                    ))}
+                </select>
+
                </div>
               )}
             </div>

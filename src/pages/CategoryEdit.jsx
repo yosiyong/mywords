@@ -115,7 +115,7 @@ export default function CategoryEdit() {
       navigate(`/categories-list`);
 
     }else {
-      console.log('new add');
+      console.log('category new add');
       toast.success("該当する単語が存在しません。");
     }
   }

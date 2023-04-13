@@ -30,24 +30,27 @@ export default function WordSave() {
   useEffect(() => {
     async function fetchListing() {
       setLoading(true);
-      const q = query(collection(db, "categories"), where("update_user", "==", auth.currentUser.uid));
-      const querySnapshot = await getDocs(q);
 
-      let listings = [];
-      querySnapshot.forEach((doc) => {
-          //console.log(doc.id, " => ", doc.data());
-          return listings.push({
-                  id: doc.id,
-                  category: doc.data().category,
-                  description: doc.data().description,
-                  update_user: doc.data().update_user
-          });
-      });
+      if (settingData.category) {
+        const q = query(collection(db, "categories"), where("update_user", "==", auth.currentUser.uid));
+        const querySnapshot = await getDocs(q);
 
-      //console.log('categories:',listings);
+        let listings = [];
+        querySnapshot.forEach((doc) => {
+            //console.log(doc.id, " => ", doc.data());
+            return listings.push({
+                    id: doc.id,
+                    category: doc.data().category,
+                    description: doc.data().description,
+                    update_user: doc.data().update_user
+            });
+        });
 
-      // //取得データ配列をuseStateに格納
-      setListings(listings);
+        //console.log('categories:',listings);
+        // //取得データ配列をuseStateに格納
+        setListings(listings);
+      }
+
       setLoading(false);
     }
     fetchListing();
@@ -141,12 +144,20 @@ export default function WordSave() {
    
       //単語データ更新
       const updateRef = doc(db, "words", wordDocId);
-      await updateDoc(updateRef, {
-        word: formDataCopy.word,
-        description: formDataCopy.description,
-        update_user:auth.currentUser.uid,
-        category:formDataCopy.category
-      });
+      if (formDataCopy.category) {
+        await updateDoc(updateRef, {
+          word: formDataCopy.word,
+          description: formDataCopy.description,
+          update_user:auth.currentUser.uid,
+          category:formDataCopy.category
+        });
+      }else{
+        await updateDoc(updateRef, {
+          word: formDataCopy.word,
+          description: formDataCopy.description,
+          update_user:auth.currentUser.uid
+        });
+      }
 
       //入力クリア
       setFormData({ word: "", description: "" });
