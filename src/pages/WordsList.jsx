@@ -33,17 +33,17 @@ import {
     const handleFocus = (event) => event.target.select();
 
 
-    //検索キーワードイベント
+    //*--*検索キーワードイベント
     function onKeywordChange(e) {
         setWord(e.target.value);
     }
 
-    //分類選択イベント
+    //*--*分類選択イベント
     function onCategoryChange(e) {
         setCategory(e.target.value);
     }
 
-    //チェックボックス全選択解除イベント
+    //*--*チェックボックス全選択解除イベント
     function onAllCheckChange(e) {
 
         let checkboxes = [];
@@ -61,7 +61,7 @@ import {
         //console.log("onAllCheckChange checkedList:", checkedList);
     }
 
-    //選択チェックイベント
+    //*--*選択チェックイベント
     function onSelected(e) {
         //console.log('onchange:',e.target.checked);
         if (e.target.checked) {
@@ -73,7 +73,7 @@ import {
         }
     }
   
-    //単語データ取得
+    //*--*単語データ取得
     async function fetchUserListings() {
 
         setLoading(true);
@@ -134,7 +134,7 @@ import {
       setLoading(false);
     }
   
-    //auth.currentUser.uidが変更された場合、実施
+    //*--*auth.currentUser.uidが変更された場合、実施
     useEffect(()=>{
        
       //Listingsデータ取得
@@ -142,7 +142,7 @@ import {
        
     },[auth.currentUser.uid]);
   
-    //削除ボタンイベント
+    //*--*削除ボタンイベント
     async function onDelete(listingID) {
       if (window.confirm("削除してもよろしいですか。")) {
         
@@ -159,19 +159,19 @@ import {
       }
     }
 
-    //編集ボタンイベント
+    //*--*編集ボタンイベント
     function onEdit(listingID) {
         navigate(`/word-edit/${listingID}?from=words-list`);
     }
 
-    //検索ボタンイベント
+    //*--*検索ボタンイベント
     function onSearch(e) {
         e.preventDefault();
 
         //console.log("word:", word);
         if (word != "") {
             const lists = allData.filter((item) => {
-                return word == item.word.word;
+                return item.word.word.includes(word) || item.word.description.includes(word);
             })
             //console.log("search:", lists.length);
             if (lists.length == 0) {
@@ -186,7 +186,7 @@ import {
 
     }
 
-    //「分類で検索」ボタンイベント
+    //*--*「分類で検索」ボタンイベント
     function onCategorySearch(e) {
         e.preventDefault();
         //console.log("onCategorySearch category:", category);
@@ -209,7 +209,7 @@ import {
  
     }
 
-    //「分類する」ボタンイベント
+    //*--*「分類する」ボタンイベント
     async function onCategory(e) {
         e.preventDefault();
         //console.log("onCategory selected checkedList:", checkedList);
@@ -232,10 +232,12 @@ import {
         //}
     }
   
+    //*--*ローディン
     if (loading) {
         return <Spinner />;
     }
     
+    //*--*出力
     return (
       <>
         <div className="max-w-6xl px-3 mt-6 mx-auto">
