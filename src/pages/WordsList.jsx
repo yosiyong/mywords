@@ -21,6 +21,7 @@ import {
   export default function WordsList() {
     //const auth = getAuth();
     const navigate = useNavigate();
+    const [allData, setAllData] = useState(null);
     const [listings, setListings] = useState(null);
     const [loading, setLoading] = useState(true);
     const [word, setWord] = useState("");
@@ -42,6 +43,24 @@ import {
         setCategory(e.target.value);
     }
 
+    //チェックボックス全選択解除イベント
+    function onAllCheckChange(e) {
+
+        let checkboxes = [];
+        document.querySelectorAll("input[type='checkbox']").forEach(el => {
+            if (e.target.id != el.id) {
+                el.checked = e.target.checked;
+                checkboxes.push(el.id);
+                //console.log("onAllCheckChange checkboxes:", checkboxes);
+            }
+        });
+
+        //console.log("onAllCheckChange checkboxes:", checkboxes);
+        setCheckedList([]);
+        setCheckedList([...checkboxes])
+        //console.log("onAllCheckChange checkedList:", checkedList);
+    }
+
     //選択チェックイベント
     function onSelected(e) {
         //console.log('onchange:',e.target.checked);
@@ -57,8 +76,7 @@ import {
     //単語データ取得
     async function fetchUserListings() {
 
-     setLoading(true);
-        
+        setLoading(true);
       //ログインユーザーの勉強履歴データhistory(sub collection)を取得
       const historyQuery = query(collectionGroup(db, 'history'), where('userRef', '==', auth.currentUser.uid));
       const historySnapshot = await getDocs(historyQuery);
@@ -112,13 +130,16 @@ import {
   
       // //取得データ配列をuseStateに格納
       setListings(listings);
+      setAllData(listings); //filter処理用に全てデータを保持
       setLoading(false);
     }
   
     //auth.currentUser.uidが変更された場合、実施
     useEffect(()=>{
+       
       //Listingsデータ取得
        fetchUserListings();
+       
     },[auth.currentUser.uid]);
   
     //削除ボタンイベント
@@ -146,28 +167,52 @@ import {
     //検索ボタンイベント
     function onSearch(e) {
         e.preventDefault();
+
         //console.log("word:", word);
         if (word != "") {
-            const lists = listings.filter((item) => {
+            const lists = allData.filter((item) => {
                 return word == item.word.word;
             })
             //console.log("search:", lists.length);
             if (lists.length == 0) {
                 toast.success("該当する単語が存在しません。");
-                setListings(listings);
+                setListings(allData);
             } else {
                 setListings(lists);
             }
-
-        } else {
+        }else{
             fetchUserListings();
         }
+
     }
 
-    //分類するボタンイベント
+    //「分類で検索」ボタンイベント
+    function onCategorySearch(e) {
+        e.preventDefault();
+        //console.log("onCategorySearch category:", category);
+        //console.log("onCategorySearch AllData:", allData);
+       if (category != "") {
+        
+            const lists = allData.filter((item) => {
+                return category == item.word.category;
+            })
+            //console.log("onCategorySearch:", lists.length);
+            if (lists.length == 0) {
+                toast.success("該当する分類が存在しません。");
+                setListings(allData);
+            } else {
+                setListings(lists);
+            }
+        }else{
+            fetchUserListings();
+        }
+ 
+    }
+
+    //「分類する」ボタンイベント
     async function onCategory(e) {
         e.preventDefault();
-        console.log("selected category:", category);
+        //console.log("onCategory selected checkedList:", checkedList);
         //if (category) {
             if (checkedList.length > 0) {
                 setLoading(true);
@@ -180,6 +225,7 @@ import {
                 }));
 
                 fetchUserListings();
+                setCheckedList([]);
                 setLoading(false);
                 toast.success("分類登録しました。");
             }
@@ -218,7 +264,8 @@ import {
                                         ))}
                                 </select>
                             </div>
-                            <button onClick={onCategory} className="text-white w-[150px] bg-indigo-500 border-0 p-2 focus:outline-none hover:bg-indigo-600 rounded text-md">分類する</button>
+                            <button onClick={onCategorySearch} className="text-white w-[150px] bg-indigo-500 border-0 p-2 focus:outline-none hover:bg-indigo-600 rounded text-md">分類で検索</button>
+                            <button onClick={onCategory} className="text-white w-[150px] bg-red-500 border-0 p-2 focus:outline-none hover:bg-red-600 rounded text-md">分類する</button>
                             </>
                         )}
                     </div>
@@ -236,7 +283,7 @@ import {
                             {settingData.category && (
                             <th
                                 className="px-5 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-                                選択</th>
+                                <input id="chkAllcheck" type="checkbox" onChange={onAllCheckChange} /></th>
                             )}
 
                             {settingData.category && (
